@@ -1142,6 +1142,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Street and Fence (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 3626916397498700004, guid: c6fc11aad389744e3849e2ecc7a60835, type: 3}
+      propertyPath: m_SortingLayer
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3626916397498700004, guid: c6fc11aad389744e3849e2ecc7a60835, type: 3}
+      propertyPath: m_SortingLayerID
+      value: 65957237
+      objectReference: {fileID: 0}
     - target: {fileID: 7878350319992209165, guid: c6fc11aad389744e3849e2ecc7a60835, type: 3}
       propertyPath: m_LocalScale.x
       value: 98.99686
