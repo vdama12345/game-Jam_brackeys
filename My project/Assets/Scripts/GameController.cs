@@ -31,6 +31,24 @@ public class GameController : MonoBehaviour
         {
             canvas.SetActive(true);
         }
+
+        if (collision.CompareTag("x_plane"))
+        {
+            canvas.SetActive(true);
+        }
+
+        if (collision.CompareTag("fall plane"))
+        {
+            int nextSceneIndex = SceneManager.GetActiveScene().buildIndex + 1;
+            if (nextSceneIndex < SceneManager.sceneCountInBuildSettings)
+            {
+                SceneManager.LoadScene(nextSceneIndex);
+            }
+             else
+            {
+                Debug.Log("No more scenes to load. End of build order.");
+            }   
+        }
     }
 
     private void OnTriggerExit2D(Collider2D collision)

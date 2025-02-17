@@ -8,6 +8,15 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/OpeningGameBound.unity
     guid: 8c9cfa26abfee488c85f1582747f6a02
+  - enabled: 1
+    path: Assets/Scenes/Level_1.unity
+    guid: 1cec123867ac0694480f81c95c16219a
+  - enabled: 1
+    path: Assets/Scenes/WIndows.unity
+    guid: c743f1555cd873c4ca26104527d18293
+  - enabled: 1
+    path: Assets/Scenes/Ending_1_PowerOff.unity
+    guid: 6c238f8ca8700401387c48591271408d
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0

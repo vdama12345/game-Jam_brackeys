@@ -10,7 +10,7 @@ public class WindowsButton : MonoBehaviour
 
     private float startYPosition;  // The starting Y position
     private bool movingUp = false;  // Direction toggle
-    private bool isMoving = false; // Track movement
+    private bool isMoving = true; // Track movement
 
     void Start()
     {
@@ -31,33 +31,33 @@ public class WindowsButton : MonoBehaviour
         if (isMoving && targetObject != null)
         {
             float currentY = targetObject.transform.position.y;
+            float newY;
 
             if (movingUp)
             {
-                // Move upwards until reaching finalYPosition
-                if (currentY < finalYPosition)
-                {
-                    targetObject.transform.position += Vector3.up * moveSpeed * Time.deltaTime;
-                }
-                else
-                {
-                    isMoving = false; // Stop moving at finalYPosition
-                }
+                // Move upwards and clamp the value
+                newY = Mathf.Min(currentY + moveSpeed * Time.deltaTime, finalYPosition);
             }
             else
             {
-                // Move downwards until reaching startYPosition
-                if (currentY > startYPosition)
-                {
-                    targetObject.transform.position += Vector3.down * moveSpeed * Time.deltaTime;
-                }
-                else
-                {
-                    isMoving = false; // Stop moving at startYPosition
-                }
+                // Move downwards and clamp the value
+                newY = Mathf.Max(currentY - moveSpeed * Time.deltaTime, startYPosition);
+            }
+
+            targetObject.transform.position = new Vector3(
+                targetObject.transform.position.x,
+                newY,
+                targetObject.transform.position.z
+            );
+
+            // Stop movement if the target is reached
+            if (newY == finalYPosition || newY == startYPosition)
+            {
+                isMoving = false;
             }
         }
     }
+
 
     void ToggleMovement()
     {

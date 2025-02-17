@@ -16,6 +16,7 @@ TagManager:
   - Platform Switch
   - Player 4
   - x_plane
+  - fall plane
   layers:
   - Default
   - TransparentFX

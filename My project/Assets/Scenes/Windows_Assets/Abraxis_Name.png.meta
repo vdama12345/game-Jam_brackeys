@@ -147,7 +147,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Abraxis_Name_0: -7323618104796979875
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
