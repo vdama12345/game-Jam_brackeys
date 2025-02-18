@@ -15,6 +15,9 @@ EditorBuildSettings:
     path: Assets/Scenes/WIndows.unity
     guid: c743f1555cd873c4ca26104527d18293
   - enabled: 1
+    path: Assets/Scenes/System32_Ending.unity
+    guid: 38f7f4084ba113e48b186eaadf725cf0
+  - enabled: 1
     path: Assets/Scenes/Ending_1_PowerOff.unity
     guid: 6c238f8ca8700401387c48591271408d
   m_configObjects:

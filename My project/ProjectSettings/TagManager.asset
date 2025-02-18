@@ -17,6 +17,11 @@ TagManager:
   - Player 4
   - x_plane
   - fall plane
+  - System 32
+  - Trash
+  - Ball Game
+  - Game Name
+  - Break Wall
   layers:
   - Default
   - TransparentFX
@@ -56,6 +61,9 @@ TagManager:
     locked: 0
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: PLayer
+    uniqueID: 2113029185
     locked: 0
   - name: Middle Ground
     uniqueID: 65957237

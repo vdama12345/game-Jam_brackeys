@@ -6,6 +6,9 @@ public class AudioManagerScript : MonoBehaviour
     public AudioClip[] playlist2; // Playlist 2
     public AudioClip[] playlist3; // Playlist 3
 
+    public GameObject speakerOn;
+    public GameObject speakerOff;
+
     private AudioSource audioSource; // Reference to AudioSource
     private bool isPlaying = false; // To track if the playlist is playing
     private int currentTrackIndex = 0; // To track the current track index
@@ -101,6 +104,9 @@ public class AudioManagerScript : MonoBehaviour
         currentPlaylist = playlist1;
         currentTrackIndex = 0; // Reset track to first one
         PlayPlaylist(); // Start the new playlist
+        speakerOff.SetActive(false);
+        speakerOn.SetActive(true);
+
     }
 
     // Method to switch to playlist 2
@@ -109,6 +115,9 @@ public class AudioManagerScript : MonoBehaviour
         currentPlaylist = playlist2;
         currentTrackIndex = 0; // Reset track to first one
         PlayPlaylist(); // Start the new playlist
+        speakerOff.SetActive(false);
+        speakerOn.SetActive(true);
+
     }
 
     // Method to switch to playlist 3
@@ -117,5 +126,8 @@ public class AudioManagerScript : MonoBehaviour
         currentPlaylist = playlist3;
         currentTrackIndex = 0; // Reset track to first one
         PlayPlaylist(); // Start the new playlist
+        speakerOff.SetActive(false);
+        speakerOn.SetActive(true);
+
     }
 }
