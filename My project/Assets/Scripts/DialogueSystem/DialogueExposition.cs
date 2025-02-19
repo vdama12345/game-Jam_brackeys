@@ -7,10 +7,10 @@ using UnityEngine.UIElements;
 
 public class DialogueExposition : MonoBehaviour
 {
-
     [SerializeField] private GameObject dialogueBox;
     [SerializeField] private TMP_Text textLabel;
     [SerializeField] private DialogueObject exposition;
+    [SerializeField] private GameObject[] panels;
 
     public bool IsOpen { get; private set; }
 
@@ -24,9 +24,9 @@ public class DialogueExposition : MonoBehaviour
         CloseDialogueBox();
         ShowDialogue(exposition);
     }
+
     public void ShowDialogue(DialogueObject dialogueObject)
     {
-        Debug.LogError("1");
         IsOpen = true;
         dialogueBox.SetActive(true);
         StartCoroutine(StepThroughDialogue(dialogueObject));
@@ -36,14 +36,32 @@ public class DialogueExposition : MonoBehaviour
     {
         responseHandler.AddResponseEvents(responseEvents);
     }
+
     private IEnumerator StepThroughDialogue(DialogueObject dialogueObject)
     {
-        Debug.LogError("2");
+        int panelIndex = 0;
+
+        // Show the default panel immediately
+        if (panels.Length > 0)
+        {
+            panels[panelIndex].SetActive(true);
+            panelIndex++;
+        }
+
         foreach (var entry in dialogueObject.DialogueEntries)
         {
             string dialogue = entry.dialogueText;
-
             yield return RunTypingEffect(dialogue);
+
+            // Show the next panel if available
+            if (panelIndex < panels.Length)
+            {
+                panels[panelIndex].SetActive(true);
+                panelIndex++;
+            }
+
+            float waitTime = Mathf.Clamp(dialogue.Length * 0.05f, 2f, 5f); // Dynamic wait time based on text length
+            yield return new WaitForSeconds(waitTime);
         }
 
         if (dialogueObject.HasResponses)
@@ -58,7 +76,6 @@ public class DialogueExposition : MonoBehaviour
 
     private IEnumerator RunTypingEffect(string dialogue)
     {
-        Debug.LogError("3");
         typewriterEffect.Run(dialogue, textLabel);
 
         while (typewriterEffect.isRunning)
@@ -72,7 +89,5 @@ public class DialogueExposition : MonoBehaviour
         IsOpen = false;
         dialogueBox.SetActive(false);
         textLabel.text = string.Empty;
-
-
     }
 }
