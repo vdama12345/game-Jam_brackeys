@@ -8,6 +8,14 @@ public class PlayerMovement : MonoBehaviour
     public float jumpForce = 10f;
     public Transform groundCheck;
     public LayerMask groundLayer;
+    public DialogueObject jumpDialogue;
+
+    public DialogueExposition dialogueExposition;
+
+    private bool dialougeRan = false;
+
+    private float lastClickTime = 0f;
+    [SerializeField]  private float doubleClickThreshold = 0.3f;
 
     private Rigidbody2D rb;
     private bool isGrounded;
@@ -40,6 +48,16 @@ public class PlayerMovement : MonoBehaviour
         // Allow jumping infinitely in "Level_1" without checking grounded status
         if (Input.GetButtonDown("Jump") && (SceneManager.GetActiveScene().name == "Level_1" || isGrounded))
         {
+            if (SceneManager.GetActiveScene().name == "Level_1" && dialougeRan == false)
+            {
+                if (Time.time - lastClickTime < doubleClickThreshold)
+                {
+                    dialogueExposition.ShowDialogue(jumpDialogue);
+                    dialougeRan = true;
+                }
+
+                lastClickTime = Time.time;
+            }
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
         }
     }

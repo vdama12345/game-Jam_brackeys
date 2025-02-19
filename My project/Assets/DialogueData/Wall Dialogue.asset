@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c71e8854c2144e28ae741d6ba188672, type: 3}
+  m_Name: Wall Dialogue
+  m_EditorClassIdentifier: 
+  dialogueEntries:
+  - dialogueText: Hey, don't touch that
+    waitTime: 0
+  - dialogueText: I tought I told you not to touch that
+    waitTime: 0
+  - dialogueText: Stop
+    waitTime: 0
+  - dialogueText: STOP
+    waitTime: 0
+  - dialogueText: Just stop ramming it okay
+    waitTime: 0
+  - dialogueText: I'll end the game right now
+    waitTime: 0
+  - dialogueText: Okay, you win, I cant end the game
+    waitTime: 0
+  - dialogueText: Stawp pwetty pwease, UWU... that was embarrassing not doing it
+      again
+    waitTime: 0
+  - dialogueText: Hey, you'll break the game if you touch it again
+    waitTime: 0
+  - dialogueText: Whatever you do don't jump
+    waitTime: 0
+  responses: []

@@ -60,8 +60,10 @@ public class DialogueExposition : MonoBehaviour
                 panelIndex++;
             }
 
-            float waitTime = Mathf.Clamp(dialogue.Length * 0.05f, 2f, 5f); // Dynamic wait time based on text length
-            yield return new WaitForSeconds(waitTime);
+            yield return new WaitForSeconds(2f); // Automatically wait before continuing
+
+            textLabel.text = string.Empty; // Clear text before implementing wait time
+            yield return new WaitForSeconds(entry.waitTime); // Use waitTime from DialogueEntry
         }
 
         if (dialogueObject.HasResponses)
@@ -84,10 +86,11 @@ public class DialogueExposition : MonoBehaviour
         }
     }
 
-    private void CloseDialogueBox()
+    public void CloseDialogueBox()
     {
         IsOpen = false;
         dialogueBox.SetActive(false);
         textLabel.text = string.Empty;
     }
 }
+
