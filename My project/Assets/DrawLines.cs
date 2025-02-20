@@ -15,11 +15,37 @@ public class DrawOnCanvas : MonoBehaviour
     private Vector2 lastPoint;
     private bool isEraserMode = false; // Flag for eraser mode
 
-    private List<Texture2D> drawingHistory = new List<Texture2D>(); // To store history for undo
+    private List<LineData> drawingHistory = new List<LineData>(); // To store history for undo
 
     // UI elements for highlighting (the squares around buttons)
     public Image penButtonHighlight;
     public Image eraserButtonHighlight;
+
+    // Enum for action types (draw or erase)
+    public enum ActionType
+    {
+        Draw,
+        Erase
+    }
+
+    // Structure to store data for a single drawn line
+    public class LineData
+    {
+        public Vector2 startPoint;
+        public Vector2 endPoint;
+        public int brushSize;
+        public Color brushColor;
+        public ActionType actionType; // The type of action (draw or erase)
+
+        public LineData(Vector2 start, Vector2 end, int size, Color color, ActionType actionType)
+        {
+            startPoint = start;
+            endPoint = end;
+            brushSize = size;
+            brushColor = color;
+            this.actionType = actionType;
+        }
+    }
 
     void Start()
     {
@@ -72,11 +98,6 @@ public class DrawOnCanvas : MonoBehaviour
         {
             lastPoint = Vector2.zero; // Reset to avoid linking previous points
         }
-
-        if (Input.GetKeyDown(KeyCode.Z) && (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))) // Ctrl+Z for undo
-        {
-            Undo();
-        }
     }
 
     // Draw the line in pen mode
@@ -98,11 +119,7 @@ public class DrawOnCanvas : MonoBehaviour
         }
 
         lastPoint = new Vector2(x, y); // Update last point
-
         drawingTexture.Apply(); // Apply changes to texture
-
-        // Save state after drawing
-        SaveState();
     }
 
     // Erase part of the drawing
@@ -129,9 +146,6 @@ public class DrawOnCanvas : MonoBehaviour
         }
 
         drawingTexture.Apply(); // Apply changes to texture
-
-        // Save state after erasing
-        SaveState();
     }
 
     // Draw a line between two points
@@ -154,33 +168,6 @@ public class DrawOnCanvas : MonoBehaviour
         }
     }
 
-    // Save the current drawing state
-    void SaveState()
-    {
-        Texture2D textureClone = new Texture2D(drawingTexture.width, drawingTexture.height);
-        textureClone.SetPixels(drawingTexture.GetPixels());
-        textureClone.Apply();
-        drawingHistory.Add(textureClone);
-        Debug.Log("State saved, history count: " + drawingHistory.Count);
-    }
-
-    // Undo the last drawing action
-    void Undo()
-    {
-        if (drawingHistory.Count > 1)
-        {
-            drawingHistory.RemoveAt(drawingHistory.Count - 1); // Remove the most recent state
-            Texture2D previousState = drawingHistory[drawingHistory.Count - 1]; // Get the previous state
-            drawingTexture.SetPixels(previousState.GetPixels());
-            drawingTexture.Apply(); // Apply the texture
-            Debug.Log("Undo performed, history count: " + drawingHistory.Count);
-        }
-        else
-        {
-            Debug.Log("No more states to undo.");
-        }
-    }
-
     // Switch to pen mode
     public void SetPenMode()
     {
@@ -196,12 +183,5 @@ public class DrawOnCanvas : MonoBehaviour
         penButtonHighlight.color = Color.white; // Reset the pen button highlight
         eraserButtonHighlight.color = Color.green; // Highlight the eraser button
     }
-
-    // Called when the undo button is clicked
-    public void OnUndoButtonClicked()
-    {
-        Undo();
-    }
 }
-
 
