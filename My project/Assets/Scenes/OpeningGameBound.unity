@@ -6070,6 +6070,7 @@ GameObject:
   - component: {fileID: 960554340}
   - component: {fileID: 960554345}
   - component: {fileID: 960554346}
+  - component: {fileID: 960554347}
   m_Layer: 0
   m_Name: Square
   m_TagString: Untagged
@@ -6095,6 +6096,9 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
+  jumpDialogue: {fileID: 0}
+  dialogueExposition: {fileID: 0}
+  doubleClickThreshold: 0.3
 --- !u!61 &960554341
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -6272,7 +6276,23 @@ MonoBehaviour:
   smash: {fileID: 2140572649}
   wallDialogue: {fileID: 11400000, guid: e6e92a66b97e5324aa726ca4fbbe9776, type: 2}
   textLabel: {fileID: 1928182627}
-  dialogueExposition: {fileID: 554332532}
+  dialogueExposition: {fileID: 960554347}
+--- !u!114 &960554347
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 960554339}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f084f876d0cc440e4b8c20df4a10f88c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dialogueBox: {fileID: 153421215}
+  textLabel: {fileID: 1928182627}
+  exposition: {fileID: 0}
+  panels: []
 --- !u!1001 &998453453
 PrefabInstance:
   m_ObjectHideFlags: 0
