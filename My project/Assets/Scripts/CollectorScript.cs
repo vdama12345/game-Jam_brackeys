@@ -7,7 +7,18 @@ public class CollectorScript : MonoBehaviour
 {
     [SerializeField] private GameObject collectable; // Assigned in Inspector
     [HideInInspector] public static string collectedItem = "";
+    public GameObject[] Logs;
     private GameObject currentCollectable; // Store the collided object
+    private bool[] isOpen;
+
+    private void Start()
+    {
+        isOpen = new bool[Logs.Length]; // Initialize the array with the length of Logs
+        for (int i = 0; i < isOpen.Length; i++)
+        {
+            isOpen[i] = false; // Set each element to false
+        }
+    }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -29,6 +40,22 @@ public class CollectorScript : MonoBehaviour
     {
         if (currentCollectable != null && Input.GetKeyDown(KeyCode.E))
         {
+            for (int i = 0; i < Logs.Length; i++)
+            {
+                if (currentCollectable.CompareTag("Log" + i))
+                {
+                    if (isOpen[i] == false)
+                    {
+                        Logs[i].SetActive(true);
+                        isOpen[i] = true;
+                    }
+                    else
+                    {
+                        Logs[i].SetActive(false);
+                        isOpen[i] = false;
+                    }
+                }
+            }
 
             if (currentCollectable.CompareTag("System 32")) // Check if it's "System 32"
             {
