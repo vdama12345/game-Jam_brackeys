@@ -6,6 +6,8 @@ public class CameraFollow : MonoBehaviour
     public Vector3 offset = new Vector3(0f, 2f, -10f);  // Offset from the player
     public float smoothSpeed = 5f;  // Smoothness of the camera movement
     public float maxFollowY = 5f;   // The Y position where the camera stops following
+    public float minFollowX = Mathf.NegativeInfinity;  // Minimum X value to follow
+    public float maxFollowX = Mathf.Infinity;  // Maximum X value to follow
 
     private Rigidbody2D playerRb;
     private bool isFollowing = true;  // Track if camera is following
@@ -39,6 +41,13 @@ public class CameraFollow : MonoBehaviour
         if (isFollowing)
         {
             Vector3 targetPosition = player.position + offset;
+
+            // Restrict X position within bounds if applicable
+            if (player.position.x < minFollowX || player.position.x > maxFollowX)
+            {
+                targetPosition.x = transform.position.x;
+            }
+
             transform.position = Vector3.Lerp(transform.position, targetPosition, smoothSpeed * Time.deltaTime);
         }
 
@@ -59,3 +68,4 @@ public class CameraFollow : MonoBehaviour
         }
     }
 }
+

@@ -2,15 +2,21 @@ using UnityEngine;
 
 public class JumpDialogue : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    [SerializeField] private DialogueExposition dialogueExposition;
+    [SerializeField] private DialogueObject triggerDialogue; // Assign specific dialogue
 
-    // Update is called once per frame
-    void Update()
+    private bool dialoguePlayed = false;
+
+    private void OnTriggerEnter2D(Collider2D collision)
     {
-        
+        if (collision.CompareTag("Player 1"))
+        {
+            if (dialogueExposition != null && triggerDialogue != null && !dialoguePlayed)
+            {
+                dialogueExposition.ShowDialogue(triggerDialogue);
+                dialoguePlayed=true;
+            }
+        }
     }
 }
+

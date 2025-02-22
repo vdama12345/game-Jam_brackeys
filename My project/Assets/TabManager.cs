@@ -25,6 +25,12 @@ public class TabManager : MonoBehaviour
     public Button convertButton;
     public Button copyButton; // Copy button for binary output
 
+    // String to Number converter variables
+    public TMP_InputField stringInputField; // Input field for the string to convert
+    public Button convertStringButton; // Button to trigger string to BigInteger conversion
+    public TMP_Text stringToNumberOutputText; // Output text for the BigInteger result
+
+
     void Start()
     {
         // Initialize tab switching
@@ -37,8 +43,8 @@ public class TabManager : MonoBehaviour
         // Add listeners for encoding and conversion functions
         decodeButton.onClick.AddListener(EncodeCaesarCipher);
         convertButton.onClick.AddListener(ConvertBinary);
-        copyButton.onClick.AddListener(CopyToClipboard); // Add listener for copy button
-
+        copyButton.onClick.AddListener(CopyToClipboard);
+        convertStringButton.onClick.AddListener(ConvertStringToBigInteger);
         // Show the first tab by default
         SwitchTab(0);
     }
@@ -51,6 +57,30 @@ public class TabManager : MonoBehaviour
             tabButtons[i].GetComponent<Image>().color = (i == index) ? Color.white : Color.gray;
         }
     }
+
+    void ConvertStringToBigInteger()
+    {
+        string inputText = stringInputField.text.ToUpper().Replace(" ", ""); // Remove spaces and convert to uppercase
+        BigInteger result = StringToBigInteger(inputText);
+        stringToNumberOutputText.text = "BigInteger: \n" + result.ToString();
+    }
+
+    BigInteger StringToBigInteger(string input)
+    {
+        string numericString = "";
+
+        foreach (char c in input)
+        {
+            if (char.IsLetter(c))
+            {
+                int letterValue = c - 'A' + 1; // Convert A=1, B=2, ..., Z=26
+                numericString += letterValue.ToString(); // Concatenate values
+            }
+        }
+
+        return BigInteger.Parse(numericString); // Convert concatenated string to BigInteger
+    }
+
 
     void EncodeCaesarCipher()
     {

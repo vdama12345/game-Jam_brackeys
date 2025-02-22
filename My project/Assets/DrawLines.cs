@@ -4,48 +4,28 @@ using System.Collections.Generic;
 
 public class DrawOnCanvas : MonoBehaviour
 {
-    public int brushSize = 10; // Base brush size (adjustable in Inspector)
-    public Color brushColor = Color.black; // Default brush color
-    public float smoothness = 0.1f; // Smoothing factor (between 0 and 1)
+    public int brushSize = 10;
+    public Color brushColor = Color.black;
+    public float smoothness = 0.1f;
 
     private Texture2D drawingTexture;
     private RectTransform rectTransform;
     private Image image;
 
     private Vector2 lastPoint;
-    private bool isEraserMode = false; // Flag for eraser mode
+    private bool isEraserMode = false;
 
-    private List<LineData> drawingHistory = new List<LineData>(); // To store history for undo
-
-    // UI elements for highlighting (the squares around buttons)
     public Image penButtonHighlight;
     public Image eraserButtonHighlight;
 
-    // Enum for action types (draw or erase)
-    public enum ActionType
-    {
-        Draw,
-        Erase
-    }
+    public GameObject linePrefab; // Prefab for line colliders
+    private LineRenderer currentLineRenderer;
+    private PolygonCollider2D currentCollider;
+    private List<Vector2> colliderPoints;
 
-    // Structure to store data for a single drawn line
-    public class LineData
-    {
-        public Vector2 startPoint;
-        public Vector2 endPoint;
-        public int brushSize;
-        public Color brushColor;
-        public ActionType actionType; // The type of action (draw or erase)
+    private bool isDrawing = false; // Track whether the user is actively drawing
 
-        public LineData(Vector2 start, Vector2 end, int size, Color color, ActionType actionType)
-        {
-            startPoint = start;
-            endPoint = end;
-            brushSize = size;
-            brushColor = color;
-            this.actionType = actionType;
-        }
-    }
+    public Button clearButton; // Reference to the clear button
 
     void Start()
     {
@@ -58,130 +38,239 @@ public class DrawOnCanvas : MonoBehaviour
             return;
         }
 
-        // Create a blank white texture
         drawingTexture = new Texture2D(512, 512, TextureFormat.RGBA32, false);
         Color[] fillColor = new Color[drawingTexture.width * drawingTexture.height];
 
         for (int i = 0; i < fillColor.Length; i++)
-            fillColor[i] = Color.white; // Fill with white
+            fillColor[i] = Color.white;
 
         drawingTexture.SetPixels(fillColor);
         drawingTexture.Apply();
 
-        // Assign to the Image component
         image.sprite = Sprite.Create(drawingTexture, new Rect(0, 0, 512, 512), new Vector2(0.5f, 0.5f));
 
-        // Make sure pen button is selected by default
         SetPenMode();
+
+        // Add listener to the clear button
+        clearButton.onClick.AddListener(ClearCanvas);
     }
 
     void Update()
     {
-        if (Input.GetMouseButton(0)) // Left-click or tablet to draw/erase
+        if (Input.GetMouseButton(0)) // Mouse is down
         {
             Vector2 localPoint;
             if (RectTransformUtility.ScreenPointToLocalPointInRectangle(rectTransform, Input.mousePosition, Camera.main, out localPoint))
             {
-                float pressure = Input.touchCount > 0 ? Input.GetTouch(0).pressure : 1f; // Pressure from touch or tablet
+                float pressure = Input.touchCount > 0 ? Input.GetTouch(0).pressure : 1f;
+
+                if (!isDrawing)
+                {
+                    // Start a new line and reset the points when mouse is down
+                    StartNewLine();
+                }
+
                 if (isEraserMode)
                 {
-                    Erase(localPoint); // Erase if in eraser mode
+                    Erase(localPoint);
                 }
                 else
                 {
-                    Draw(localPoint, pressure); // Draw if in pen mode
+                    Draw(localPoint, pressure);
                 }
             }
         }
 
-        if (Input.GetMouseButtonUp(0)) // Reset last point when the mouse is lifted
+        if (Input.GetMouseButtonUp(0)) // Mouse is released
         {
-            lastPoint = Vector2.zero; // Reset to avoid linking previous points
+            FinishCurrentLine();
+            lastPoint = Vector2.zero;
+            isDrawing = false; // Stop drawing when mouse is released
         }
     }
 
-    // Draw the line in pen mode
     void Draw(Vector2 localPoint, float pressure)
     {
-        // Convert local UI position to texture coordinates
         float width = rectTransform.rect.width;
         float height = rectTransform.rect.height;
         int x = (int)(((localPoint.x + width / 2) / width) * drawingTexture.width);
         int y = (int)(((localPoint.y + height / 2) / height) * drawingTexture.height);
 
-        // Adjust brush size based on pressure
         int dynamicBrushSize = Mathf.Clamp((int)(brushSize * pressure), 1, brushSize * 2);
 
-        // Draw smooth lines and apply anti-aliasing
         if (lastPoint != Vector2.zero)
         {
             DrawLine(lastPoint, new Vector2(x, y), dynamicBrushSize);
         }
 
-        lastPoint = new Vector2(x, y); // Update last point
-        drawingTexture.Apply(); // Apply changes to texture
+        // Convert local point to world point and add to collider
+        Vector2 worldPoint = ConvertToWorldPoint(localPoint);
+        AddPointToCollider(worldPoint);
+
+        lastPoint = new Vector2(x, y);
+        drawingTexture.Apply();
     }
 
-    // Erase part of the drawing
     void Erase(Vector2 localPoint)
     {
-        // Convert local UI position to texture coordinates
+        // Erase pixels in the texture
         float width = rectTransform.rect.width;
         float height = rectTransform.rect.height;
         int x = (int)(((localPoint.x + width / 2) / width) * drawingTexture.width);
         int y = (int)(((localPoint.y + height / 2) / height) * drawingTexture.height);
 
-        // Erase in the region of the brush
         for (int i = -brushSize; i < brushSize; i++)
         {
             for (int j = -brushSize; j < brushSize; j++)
             {
-                if (i * i + j * j <= brushSize * brushSize) // Circular eraser shape
+                if (i * i + j * j <= brushSize * brushSize)
                 {
                     int px = Mathf.Clamp(x + i, 0, drawingTexture.width - 1);
                     int py = Mathf.Clamp(y + j, 0, drawingTexture.height - 1);
-                    drawingTexture.SetPixel(px, py, Color.white); // Set to white (eraser effect)
+                    drawingTexture.SetPixel(px, py, Color.white);
                 }
             }
         }
 
-        drawingTexture.Apply(); // Apply changes to texture
+        // Erase line prefabs (colliders and lines)
+        foreach (Transform child in transform) // Iterate through all line prefabs (children)
+        {
+            LineRenderer lineRenderer = child.GetComponent<LineRenderer>();
+            PolygonCollider2D polygonCollider = child.GetComponent<PolygonCollider2D>();
+
+            if (lineRenderer != null && polygonCollider != null)
+            {
+                // Check if any of the collider points are within the eraser radius
+                bool shouldDeleteLine = false;
+                foreach (Vector2 point in colliderPoints)
+                {
+                    if (Vector2.Distance(localPoint, point) <= brushSize)
+                    {
+                        shouldDeleteLine = true;
+                        break; // Stop if any point is within the eraser radius
+                    }
+                }
+
+                // If any point of the line is within the erase area, destroy the line and its collider
+                if (shouldDeleteLine)
+                {
+                    Destroy(child.gameObject); // Destroy the whole line prefab (collider + LineRenderer)
+                }
+            }
+        }
+
+        drawingTexture.Apply();
     }
 
-    // Draw a line between two points
     void DrawLine(Vector2 start, Vector2 end, int brushSize)
     {
         Vector2 direction = end - start;
         float distance = direction.magnitude;
         direction.Normalize();
 
-        // Anti-aliasing (blend between full transparency and brush color)
         for (float t = 0; t < distance; t += smoothness)
         {
             Vector2 point = start + direction * t;
             int x = Mathf.Clamp((int)point.x, 0, drawingTexture.width - 1);
             int y = Mathf.Clamp((int)point.y, 0, drawingTexture.height - 1);
 
-            // Apply anti-aliasing by blending pixels
-            Color color = brushColor * 0.8f; // Full color
+            Color color = brushColor * 0.8f;
             drawingTexture.SetPixel(x, y, Color.Lerp(drawingTexture.GetPixel(x, y), color, 0.8f));
         }
     }
 
-    // Switch to pen mode
+    void AddPointToCollider(Vector2 worldPoint)
+    {
+        // Adjust position slightly to match the visual line
+        Vector2 adjustedPoint = new Vector2(worldPoint.x + 0.27f, worldPoint.y + 1.268f); // Adjust this value as needed
+
+        // Clamp the point within the image boundaries
+        float width = rectTransform.rect.width;
+        float height = rectTransform.rect.height;
+        adjustedPoint.x = Mathf.Clamp(adjustedPoint.x, -width / 2, width / 2);
+        adjustedPoint.y = Mathf.Clamp(adjustedPoint.y, -height / 2, height / 2);
+
+        // Initialize the collider and points list if not already done
+        if (colliderPoints == null)
+        {
+            colliderPoints = new List<Vector2>();
+            GameObject newLine = Instantiate(linePrefab, transform);
+            currentLineRenderer = newLine.GetComponent<LineRenderer>();
+            currentCollider = newLine.GetComponent<PolygonCollider2D>(); // Using PolygonCollider2D
+        }
+
+        // Add a new point to the list if it's far enough from the last point
+        if (colliderPoints.Count == 0 || Vector2.Distance(colliderPoints[colliderPoints.Count - 1], adjustedPoint) > 0.01f)
+        {
+            colliderPoints.Add(adjustedPoint);
+
+            // Update the LineRenderer positions
+            currentLineRenderer.positionCount = colliderPoints.Count;
+            currentLineRenderer.SetPosition(colliderPoints.Count - 1, adjustedPoint);
+
+            // Update the PolygonCollider2D to match the points
+            currentCollider.SetPath(0, colliderPoints.ToArray());
+        }
+    }
+
+    void FinishCurrentLine()
+    {
+        if (currentCollider != null && colliderPoints.Count > 2)
+        {
+            // Set the collider's path to the world points
+            currentCollider.SetPath(0, colliderPoints.ToArray());
+        }
+    }
+
+    Vector2 ConvertToWorldPoint(Vector2 localPoint)
+    {
+        // Convert from local space (canvas space) to world space
+        Vector3 worldPoint = rectTransform.TransformPoint(localPoint);
+        return new Vector2(worldPoint.x, worldPoint.y);
+    }
+
+    void StartNewLine()
+    {
+        // Mark that the user is starting a new line
+        isDrawing = true;
+
+        // Clear the old collider and points
+        colliderPoints = new List<Vector2>();
+        GameObject newLine = Instantiate(linePrefab, transform);
+        currentLineRenderer = newLine.GetComponent<LineRenderer>();
+        currentCollider = newLine.GetComponent<PolygonCollider2D>();
+    }
+
     public void SetPenMode()
     {
-        isEraserMode = false; // Set to pen mode
-        penButtonHighlight.color = Color.green; // Highlight the pen button
-        eraserButtonHighlight.color = Color.white; // Reset the eraser button highlight
+        isEraserMode = false;
+        penButtonHighlight.color = Color.green;
+        eraserButtonHighlight.color = Color.white;
     }
 
-    // Switch to eraser mode
     public void SetEraserMode()
     {
-        isEraserMode = true; // Set to eraser mode
-        penButtonHighlight.color = Color.white; // Reset the pen button highlight
-        eraserButtonHighlight.color = Color.green; // Highlight the eraser button
+        isEraserMode = true;
+        penButtonHighlight.color = Color.white;
+        eraserButtonHighlight.color = Color.green;
+    }
+
+    // Clear button method
+    public void ClearCanvas()
+    {
+        // Clear all line prefabs
+        foreach (Transform child in transform)
+        {
+            Destroy(child.gameObject);
+        }
+
+        // Clear the drawing texture by setting all pixels to white
+        Color[] fillColor = new Color[drawingTexture.width * drawingTexture.height];
+        for (int i = 0; i < fillColor.Length; i++)
+        {
+            fillColor[i] = Color.white;
+        }
+        drawingTexture.SetPixels(fillColor);
+        drawingTexture.Apply();
     }
 }
-

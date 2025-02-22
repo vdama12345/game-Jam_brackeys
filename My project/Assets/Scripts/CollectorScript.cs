@@ -61,6 +61,7 @@ public class CollectorScript : MonoBehaviour
             {
                 collectedItem = "System32";
                 currentCollectable.SetActive(false);
+                currentCollectable = null; // Reset after collection
             }
 
 
@@ -81,8 +82,6 @@ public class CollectorScript : MonoBehaviour
             {
                 SceneManager.LoadScene(0);
             }
-
-            currentCollectable = null; // Reset after collection
         }
     }
 }

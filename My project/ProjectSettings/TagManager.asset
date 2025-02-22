@@ -22,6 +22,13 @@ TagManager:
   - Ball Game
   - Game Name
   - Break Wall
+  - Log0
+  - Log1
+  - Log2
+  - Log3
+  - Log4
+  - Line
+  - Log5
   layers:
   - Default
   - TransparentFX
@@ -62,14 +69,14 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
-  - name: PLayer
-    uniqueID: 2113029185
-    locked: 0
   - name: Middle Ground
     uniqueID: 65957237
     locked: 0
   - name: Foreground
     uniqueID: 2739689465
+    locked: 0
+  - name: PLayer
+    uniqueID: 2113029185
     locked: 0
   m_RenderingLayers:
   - Default
